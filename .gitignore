@@ -1,0 +1,51 @@
+# Python derleme dosyaları
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Sanal ortam klasörleri (varsa)
+venv/
+.venv/
+env/
+
+# ChromaDB Yerel Veritabanı (Büyük boyutlu ve yerel olduğu için yüklenmemeli)
+yerel_veritabani/
+
+# Oluşturulan veya işlenen veri dosyaları
+metin_dosyasi.txt
+
+# PDF dosyaları (Eğer kaynak dosyaları depoya atmak istemiyorsanız)
+*.pdf
+
+# VS Code ayarları (Kişisel ayarlar içeriyorsa)
+.vscode/
+
+# İşletim sistemi dosyaları
+.DS_Store
+
+pdf_to_text.py
+
+
+# ...existing code...
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtualenv
+venv/
+*/venv/
+
+# Flutter / Dart
+**/build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# IDE
+.vscode/
+.idea/
