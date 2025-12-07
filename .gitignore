@@ -9,11 +9,6 @@ venv/
 .venv/
 env/
 
-# ChromaDB Yerel Veritabanı (Büyük boyutlu ve yerel olduğu için yüklenmemeli)
-yerel_veritabani/
-
-# Oluşturulan veya işlenen veri dosyaları
-metin_dosyasi.txt
 
 # PDF dosyaları (Eğer kaynak dosyaları depoya atmak istemiyorsanız)
 *.pdf
@@ -23,21 +18,7 @@ metin_dosyasi.txt
 
 # İşletim sistemi dosyaları
 .DS_Store
-
-
-
-
-# ...existing code...
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Virtualenv
-venv/
-*/venv/
+Thumbs.db
 
 # Flutter / Dart
 **/build/
@@ -49,3 +30,10 @@ venv/
 # IDE
 .vscode/
 .idea/
+
+
+
+# Geçici dosyalar
+*.log
+*.tmp
+*.bak
