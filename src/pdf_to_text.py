@@ -34,18 +34,12 @@ try:
                 print(f"[{i}/{len(pdf_files)}] İşleniyor: {filename}")
                 doc = fitz.open(filepath)
 
-                pages_content = []
                 full_text = ""
 
                 for page_num in range(len(doc)):
                     page = doc.load_page(page_num)
                     text = page.get_text()
                     cleaned_text = " ".join(text.split())
-                    
-                    pages_content.append({
-                        "page_number": page_num + 1,
-                        "content": cleaned_text
-                    })
                     full_text += cleaned_text + " "
 
                 documents.append({
@@ -53,8 +47,7 @@ try:
                     "filename": filename,
                     "filepath": filepath,
                     "page_count": len(doc),
-                    "full_text": full_text.strip(),
-                    "pages": pages_content
+                    "full_text": full_text.strip()
                 })
 
                 doc.close()

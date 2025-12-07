@@ -1,7 +1,8 @@
 import chromadb
 from chromadb.utils import embedding_functions
 import os
-import re
+import json
+import time
 
 client = chromadb.PersistentClient(path="./yerel_veritabani")
 
@@ -14,14 +15,19 @@ collection = client.get_or_create_collection(
     embedding_function=ef
 )
 
-txt_dosya_yolu = '/home/ugo/Documents/Python/bitirememe projesi/metin_dosyasi.txt'
+json_dosya_yolu = '/home/ugo/Documents/Python/bitirememe projesi/metin_dosyasi.json'
 
-if not os.path.exists(txt_dosya_yolu):
-    print(f"HATA: {txt_dosya_yolu} dosyası bulunamadı!")
+if not os.path.exists(json_dosya_yolu):
+    print(f"HATA: {json_dosya_yolu} dosyası bulunamadı!")
     exit()
 
-with open(txt_dosya_yolu, 'r', encoding='utf-8') as f:
-    icerik = f.read()
+# JSON dosyasını oku
+with open(json_dosya_yolu, 'r', encoding='utf-8') as f:
+    data = json.load(f)
+
+# Dökümanları çıkar
+documents = data.get("documents", [])
+print(f"✓ Toplam {len(documents)} adet döküman bulundu")
 
 
 def metni_parcala(metin, chunk_size=500, overlap=100):
@@ -36,26 +42,65 @@ def metni_parcala(metin, chunk_size=500, overlap=100):
     
     return parcalar
 
-metinler = metni_parcala(icerik, chunk_size=300, overlap=50)
 
-print(f"Toplam {len(metinler)} adet metin parçası oluşturuldu.")
+# Tüm parçaları ve metadata'ları topla
+tum_metinler = []
+tum_idler = []
+tum_metadatalar = []
 
-idler = [f"chunk_{i}" for i in range(len(metinler))]
+for doc in documents:
+    doc_id = doc.get("id", 0)
+    filename = doc.get("filename", "")
+    filepath = doc.get("filepath", "")
+    full_text = doc.get("full_text", "")
+    
+    if not full_text or len(full_text.strip()) < 50:
+        print(f"⚠ Atlanan döküman (boş veya çok kısa): {filename}")
+        continue
+    
+    # Metni parçala
+    parcalar = metni_parcala(full_text, chunk_size=300, overlap=50)
+    
+    for chunk_idx, parca in enumerate(parcalar):
+        tum_metinler.append(parca)
+        tum_idler.append(f"doc_{doc_id}_chunk_{chunk_idx}")
+        tum_metadatalar.append({
+            "doc_id": doc_id,
+            "filename": filename,
+            "filepath": filepath,
+            "chunk_id": chunk_idx
+        })
 
-metadatalar = [{"chunk_id": i, "kaynak": "metin_dosyasi.txt"} for i in range(len(metinler))]
+print(f"✓ Toplam {len(tum_metinler)} adet metin parçası oluşturuldu\n")
 
-batch_size = 1000
+# ChromaDB'ye batch halinde ekle
+batch_size = 100
+total_added = 0
 
-for i in range(0, len(metinler), batch_size):
-    batch_metinler = metinler[i:i+batch_size]
-    batch_idler = idler[i:i+batch_size]
-    batch_metadatalar = metadatalar[i:i+batch_size]
+print("📝 Veri ekleniyor...")
+start_time = time.time()
+
+for i in range(0, len(tum_metinler), batch_size):
+    batch_metinler = tum_metinler[i:i+batch_size]
+    batch_idler = tum_idler[i:i+batch_size]
+    batch_metadatalar = tum_metadatalar[i:i+batch_size]
     
     collection.add(
         documents=batch_metinler,
         metadatas=batch_metadatalar,
         ids=batch_idler
     )
-    print(f"{i+len(batch_metinler)}/{len(metinler)} parça eklendi...")
+    total_added += len(batch_metinler)
+    print(f"✓ {total_added}/{len(tum_metinler)} parça eklendi...")
 
-print(f"\n{len(metinler)} adet veri başarıyla vektör veritabanına kaydedildi!")
+insert_time = time.time() - start_time
+
+print(f"\n{'='*60}")
+print(f"✓ {len(tum_metinler)} adet veri başarıyla ChromaDB'ye kaydedildi!")
+print(f"✓ Toplam ekleme zamanı: {insert_time:.2f}s")
+print(f"{'='*60}")
+
+# Koleksiyon bilgisi
+print(f"\n📊 Koleksiyon Bilgisi:")
+print(f"   Koleksiyon adı: {collection.name}")
+print(f"   Toplam kayıt: {collection.count()}")
