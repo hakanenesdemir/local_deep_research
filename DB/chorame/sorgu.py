@@ -58,7 +58,7 @@ print("\n=== İLK 10 VERİ ===")
 for i, (doc, meta) in enumerate(zip(results['documents'], results['metadatas']), 1):
     print(f"\n{i}. Veri:")
     print(f"   Metadata: {meta}")
-    print(f"   İçerik: {doc[:100]}...")  
+    print(f"   İçerik: {doc}")  
 
 print("\n\n=== ARAMA SONUÇLARI ===")
 sorgu = "artificial intelligence healthcare"
@@ -76,4 +76,4 @@ for i, (doc, meta, dist) in enumerate(zip(
 ), 1):
     print(f"\n{i}. Sonuç (Benzerlik: {1-dist:.4f}):")
     print(f"   Metadata: {meta}")
-    print(f"   İçerik: {doc[:150]}...")
+    print(f"   İçerik: {doc}")
